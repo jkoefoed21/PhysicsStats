@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace PhysicsStats
 {
-    public partial class Form1 : Form
+    public partial class ControlForm : Form
     {
-        public Form1()
+        public ControlForm()
         {
             InitializeComponent();
         }
