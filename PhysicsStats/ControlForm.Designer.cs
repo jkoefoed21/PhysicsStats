@@ -1,4 +1,6 @@
-﻿namespace PhysicsStats
+﻿using System.Windows.Forms;
+
+namespace PhysicsStats
 {
     partial class ControlForm
     {
@@ -19,6 +21,9 @@
             }
             base.Dispose(disposing);
         }
+
+        //use DataGridView
+        //use listboxes for players
 
         #region Windows Form Designer generated code
 
