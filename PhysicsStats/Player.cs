@@ -17,12 +17,20 @@ namespace PhysicsStats
             {
                 throw new ArgumentNullException("Players must have non-null names");
             }
+            if (LastName.Equals(""))
+            {
+                throw new ArgumentException("Players must have non-empty Last Name");
+            }
             First = FirstName;
             Last = LastName;
         }
 
         public override string ToString()
         {
+            if (First.Equals(""))
+            {
+                return Last;
+            }
             return First + " " + Last;
         }
 

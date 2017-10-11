@@ -8,10 +8,10 @@ namespace PhysicsStats
 {
     class Game
     {
-        public int Winp1 { get; }
-        public int Winp2 { get; }
-        public int Lossp1 { get; }
-        public int Lossp2 { get; }
+        public int Winp1 { get; set; } = 0;
+        public int Winp2 { get; set; } = 0;
+        public int Lossp1 { get; set; } = 0;
+        public int Lossp2 { get; set; } = 0;
         public int Cups { get; set; }
         public int OTCups { get; set; }
         public int DaySinceEpoch { get; set; }
@@ -50,6 +50,26 @@ namespace PhysicsStats
         public bool didPlayerWin(Player p)
         {
             return (p.Equals(Winp1) || p.Equals(Winp2));
+        }
+
+        public void switchWinPlayers()
+        {
+            if (!(Winp1 == 0 || Winp2 == 0)) 
+            {
+                int temp = Winp2;
+                Winp2 = Winp1;
+                Winp1 = temp;
+            }
+        }
+
+        public void switchLossPlayers()
+        {
+            if (!(Lossp1==0 || Lossp2==0))
+            {
+                int temp = Lossp2;
+                Lossp2 = Lossp1;
+                Lossp1 = temp;
+            }
         }
 
         public int getCupDifferential(Player p)
