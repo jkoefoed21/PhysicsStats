@@ -25,6 +25,11 @@ namespace PhysicsStats
         public static void Main(string[] args)
         {
             PhysicsManager p = new PhysicsManager();
+            Console.WriteLine(p.teamWinTotal(1, 10));
+            Console.WriteLine(p.teamGameTotal(1, 10));
+            Console.WriteLine(p.teamWinCupTotal(1, 10));
+            Console.WriteLine(p.teamLossCupTotal(1, 10));
+            Console.WriteLine(p.editPlayerName(new Player("Koefoed", "Jack"), new Player("Jack", "")));
             //p.clearPlayers();
             //p.insertGame(new Game(1,1,2,3,4,1,0,2));
             //Console.WriteLine(p.getMaxGameID());
@@ -34,7 +39,7 @@ namespace PhysicsStats
             }*/
             //p.clearTables();
             //Console.WriteLine(epoch.ToShortDateString());
-            Player[] players=p.listAllPlayers();
+            /*Player[] players=p.listAllPlayers();
             for (int ii=0; ii<players.Length; ii++)
             {
                 Console.WriteLine(players[ii].ToString() + "  G:" + p.playerGameTotal(p.getPlayerNum(players[ii]))
@@ -44,13 +49,10 @@ namespace PhysicsStats
                                   + "   LC:" + p.playerLossCupTotal(p.getPlayerNum(players[ii]))
                                   + "   CD:" + (p.playerWinCupTotal(p.getPlayerNum(players[ii])) - p.playerLossCupTotal(p.getPlayerNum(players[ii])))
                                   +"   CD/G:" + ((double)p.playerWinCupTotal(p.getPlayerNum(players[ii])) - p.playerLossCupTotal(p.getPlayerNum(players[ii])))/p.playerGameTotal(p.getPlayerNum(players[ii])));
-        }
+            }*/
 
             //p.readFromTSV("C:\\users\\jk\\documents\\Physics program test zone\\physicstest.txt");
             //p.printToTSV("C:\\users\\jk\\documents\\Physics program test zone\\physicstest2.txt");
-
-            //p.insertGame(new Game(1, 4, 4, 4, 4, 4, 4, 4));
-            //p.insertGame(new Game(1, 2, 2, 2, 2, 2, 2, 2));
             Console.ReadKey();
         }
 
@@ -245,10 +247,16 @@ namespace PhysicsStats
         {
             executeInputQuery("INSERT INTO players (LastName, FirstName) values (@val1, @val2)", p.Last, p.First);
         }
-        /*public void editPlayerName(Player oldPlayer, Player newPlayer)
+        public bool editPlayerName(Player oldPlayer, Player newPlayer)
         {
-            //executeOutputQuery("SELECT * FROM players WHERE ");
-        }*/
+            if (getPlayerNum(newPlayer)!=-1)
+            {
+                return false;
+            }
+            int id = getPlayerNum(oldPlayer);
+            executeInputQuery("UPDATE players SET LastName = @val1, FirstName = @val2 WHERE id=@val3", newPlayer.Last, newPlayer.First, id);
+            return true;
+        }
         public Player[] listAllPlayers()
         {
             Object[][] data = getData("SELECT * FROM Players");
@@ -334,6 +342,43 @@ namespace PhysicsStats
             return total;
         }
 
+        //for a solo game playerNum2 would be zero.
+        public int teamWinTotal(int playerNum1, int playerNum2)
+        {
+            Object[][] data = getData("SELECT * FROM games WHERE (WinP1 = @val1 AND WinP2 = @val2) " +
+                                       "OR (WinP1 = @val2 AND WinP2 = @val1)", playerNum1, playerNum2);
+            return data.Length;
+        }
+        public int teamGameTotal(int playerNum1, int playerNum2)
+        {
+            Object[][] data = getData("SELECT cups FROM games WHERE (WinP1 = @val1 AND WinP2 = @val2) " +
+                                       "OR (WinP1 = @val2 AND WinP2 = @val1) OR (LossP1 = @val1 AND LossP2 = @val2)" +
+                                       "OR (LossP1 = @val2 AND LossP2 = @val1)", playerNum1, playerNum2);
+            return data.Length;
+        }
+        public int teamWinCupTotal(int playerNum1, int playerNum2)
+        {
+            Object[][] data = getData("SELECT cups FROM games WHERE (WinP1 = @val1 AND WinP2 = @val2) " +
+                                       "OR (WinP1 = @val2 AND WinP2 = @val1)", playerNum1, playerNum2);
+            int total = 0;
+            for (int ii = 0; ii < data.Length; ii++)
+            {
+                total += Convert.ToInt32(data[ii][0]);
+            }
+            return total;
+        }
+        public int teamLossCupTotal(int playerNum1, int playerNum2)
+        {
+            Object[][] data = getData("SELECT cups FROM games WHERE (LossP1 = @val1 AND LossP2 = @val2) " +
+                                       "OR (LossP1 = @val2 AND LossP2 = @val1)", playerNum1, playerNum2);
+            int total = 0;
+            for (int ii = 0; ii < data.Length; ii++)
+            {
+                total += Convert.ToInt32(data[ii][0]);
+            }
+            return total;
+        }
+
         public Object[][] getData(string query)
         {
             SQLiteDataReader reader = executeOutputQuery(query);
@@ -400,6 +445,14 @@ namespace PhysicsStats
             SQLiteCommand command = new SQLiteCommand(query, sql);
             command.Parameters.AddWithValue("@val1", val1);
             command.Parameters.AddWithValue("@val2", val2);
+            command.ExecuteNonQuery();
+        }
+        public void executeInputQuery(string query, object val1, object val2, object val3)
+        {
+            SQLiteCommand command = new SQLiteCommand(query, sql);
+            command.Parameters.AddWithValue("@val1", val1);
+            command.Parameters.AddWithValue("@val2", val2);
+            command.Parameters.AddWithValue("@val3", val3);
             command.ExecuteNonQuery();
         }
         public void executeInputQuery(string query, object val1, object val2, object val3, object val4, object val5, object val6, object val7, object val8, object val9)
